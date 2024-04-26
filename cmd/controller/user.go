@@ -95,6 +95,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"crud-mongodb/cmd/models"
 
@@ -161,6 +162,8 @@ func (uc UserController) CreateUser(w http.ResponseWriter, r *http.Request, _ ht
 	}
 
 	user.Id = primitive.NewObjectID()
+	user.CreatedDate = time.Time{}
+	user.UpdatedDate = time.Time{}
 	collection := uc.client.Database("mongo-golang").Collection("users")
 	_, err := collection.InsertOne(context.Background(), &user)
 
