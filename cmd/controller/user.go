@@ -201,3 +201,30 @@ func (uc UserController) DeleteUser(w http.ResponseWriter, r *http.Request, p ht
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "User with ID %s deleted successfully", id)
 }
+
+func (uc UserController) GetALlUsers(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+
+	collection := uc.client.Database("mongo-golang").Collection("users")
+
+	userPas, err := collection.Find(context.Background(), bson.M{})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, "Error fetching users: %v", err)
+		return
+	}
+
+	var users []models.User
+	if err := userPas.All(context.Background(), &users); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, "Error while fetching users : %v", err)
+	}
+
+	responseJson, err := json.Marshal(users)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(responseJson)
+
+}
